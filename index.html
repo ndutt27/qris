@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator QRIS Dinamis</title>
+    <!-- Memuat Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat pustaka jsQR untuk membaca QR code dari gambar -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <!-- Memuat pustaka QRCode.js untuk membuat QR code baru -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .step-card {
+            transition: all 0.3s ease-in-out;
+        }
+        /* Style untuk file input yang lebih menarik */
+        .custom-file-input::-webkit-file-upload-button {
+            visibility: hidden;
+        }
+        .custom-file-input::before {
+            content: 'Pilih Gambar QRIS';
+            display: inline-block;
+            background: #3b82f6; /* bg-blue-500 */
+            color: white;
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 0.5rem 1rem;
+            outline: none;
+            white-space: nowrap;
+            -webkit-user-select: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .custom-file-input:hover::before {
+            background: #2563eb; /* bg-blue-600 */
+        }
+        .custom-file-input:active::before {
+            background: #1d4ed8; /* bg-blue-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Generator QRIS Dinamis</h1>
+            <p class="text-gray-400 mt-2">Ubah QRIS statis menjadi QRIS dengan nominal tertentu.</p>
+        </header>
+
+        <main class="space-y-6">
+            <!-- Langkah 1: Unggah Gambar QRIS -->
+            <div id="step1" class="step-card bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                <div class="flex items-center mb-4">
+                    <div class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-lg">1</div>
+                    <h2 class="ml-4 text-xl font-semibold">Unggah Gambar QRIS Statis</h2>
+                </div>
+                <p class="text-gray-400 mb-4 text-sm">Pilih atau ambil foto QRIS yang ingin Anda jadikan dinamis.</p>
+                <input type="file" id="qrInput" accept="image/*" class="custom-file-input block w-full text-sm text-gray-400">
+                <canvas id="canvas" class="hidden"></canvas>
+                <p id="status" class="text-center mt-4 text-sm font-medium text-yellow-400"></p>
+            </div>
+
+            <!-- Langkah 2: Masukkan Jumlah -->
+            <div id="step2" class="step-card bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hidden">
+                <div class="flex items-center mb-4">
+                    <div class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-lg">2</div>
+                    <h2 class="ml-4 text-xl font-semibold">Masukkan Nominal</h2>
+                </div>
+                <p id="scan-success" class="text-green-400 text-sm mb-4 font-semibold">✅ QRIS berhasil dipindai!</p>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">Rp</span>
+                    <input type="number" id="amountInput" placeholder="Contoh: 50000" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 pl-10 pr-4 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500">
+                </div>
+                <button id="generateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg mt-4 transition-colors">
+                    Buat QRIS Dinamis
+                </button>
+                <p id="amountError" class="text-red-400 text-center mt-2 text-sm"></p>
+            </div>
+
+            <!-- Langkah 3: Hasil QRIS Dinamis -->
+            <div id="step3" class="step-card bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hidden text-center">
+                 <div class="flex items-center mb-4 justify-center">
+                    <div class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-lg">3</div>
+                    <h2 class="ml-4 text-xl font-semibold">QRIS Dinamis Anda</h2>
+                </div>
+                <p class="text-gray-400 mb-2">Scan QR code di bawah ini untuk membayar sebesar:</p>
+                <p id="displayAmount" class="text-2xl font-bold text-green-400 mb-4"></p>
+                <div id="qrcode" class="flex justify-center items-center bg-white p-4 rounded-lg mx-auto w-64 h-64"></div>
+                <div class="mt-6 flex space-x-4">
+                    <button id="downloadBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">Unduh</button>
+                    <button id="resetBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">Buat Lagi</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Mendapatkan elemen-elemen dari DOM ---
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+
+        const qrInput = document.getElementById('qrInput');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const statusEl = document.getElementById('status');
+        
+        const amountInput = document.getElementById('amountInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const amountError = document.getElementById('amountError');
+
+        const qrcodeContainer = document.getElementById('qrcode');
+        const displayAmount = document.getElementById('displayAmount');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let staticQrisData = null;
+
+        /**
+         * Fungsi untuk menghitung CRC16-CCITT-FALSE.
+         * Ini adalah kunci utama agar QRIS valid.
+         * @param {string} data - String data yang akan dihitung CRC-nya.
+         * @returns {string} - Nilai CRC dalam format 4 karakter hexadecimal.
+         */
+        function crc16ccitt(data) {
+            let crc = 0xFFFF;
+            for (let i = 0; i < data.length; i++) {
+                crc ^= data.charCodeAt(i) << 8;
+                for (let j = 0; j < 8; j++) {
+                    crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1;
+                }
+            }
+            return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+        }
+        
+        // --- Event Listener untuk input file ---
+        qrInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            statusEl.textContent = 'Memindai gambar...';
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0, img.width, img.height);
+                    const imageData = ctx.getImageData(0, 0, img.width, img.height);
+                    
+                    try {
+                        const code = jsQR(imageData.data, imageData.width, imageData.height);
+                        if (code && code.data && code.data.startsWith('000201')) {
+                            staticQrisData = code.data;
+                            statusEl.textContent = '';
+                            step1.classList.add('hidden');
+                            step2.classList.remove('hidden');
+                        } else {
+                            statusEl.textContent = 'Gagal menemukan QRIS yang valid. Coba gambar lain.';
+                        }
+                    } catch (err) {
+                        statusEl.textContent = 'Error saat memindai. Pastikan gambar jelas.';
+                        console.error("jsQR error:", err);
+                    }
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // --- Event Listener untuk tombol Generate ---
+        generateBtn.addEventListener('click', () => {
+            const amount = amountInput.value;
+            amountError.textContent = '';
+
+            if (!amount || isNaN(amount) || Number(amount) <= 0) {
+                amountError.textContent = 'Masukkan jumlah yang valid.';
+                return;
+            }
+            if (!staticQrisData) {
+                amountError.textContent = 'Data QRIS tidak ditemukan. Silakan unggah ulang.';
+                return;
+            }
+
+            // --- Logika Inti untuk Membuat QRIS Dinamis ---
+
+            // 1. Ambil data QRIS dasar tanpa CRC lama (tag 63)
+            let baseQris = staticQrisData.substring(0, staticQrisData.lastIndexOf('6304'));
+            
+            // 2. Hapus tag nominal lama (tag 54) jika ada, agar tidak duplikat
+            const amountTagIndex = baseQris.indexOf('54');
+            if (amountTagIndex !== -1) {
+                const lengthStr = baseQris.substring(amountTagIndex + 2, amountTagIndex + 4);
+                const length = parseInt(lengthStr, 10);
+                baseQris = baseQris.substring(0, amountTagIndex) + baseQris.substring(amountTagIndex + 4 + length);
+            }
+
+            // 3. Buat tag nominal baru (ID '54', panjang 2 digit, nilai)
+            const amountLength = amount.length.toString().padStart(2, '0');
+            const newAmountTag = `54${amountLength}${amount}`;
+            
+            // 4. Gabungkan data dasar dengan tag nominal baru
+            const dataWithAmount = baseQris + newAmountTag;
+
+            // 5. [FIXED] Buat string untuk dihitung CRC-nya. HARUS menyertakan '6304'
+            const stringForCrc = dataWithAmount + '6304';
+            const newCrc = crc16ccitt(stringForCrc);
+
+            // 6. Buat string QRIS final
+            const dynamicQrisData = `${dataWithAmount}6304${newCrc}`;
+
+            // --- Tampilkan hasil ke pengguna ---
+            step2.classList.add('hidden');
+            step3.classList.remove('hidden');
+
+            displayAmount.textContent = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+            
+            qrcodeContainer.innerHTML = '';
+            new QRCode(qrcodeContainer, {
+                text: dynamicQrisData,
+                width: 240,
+                height: 240,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H // Gunakan level koreksi lebih tinggi
+            });
+        });
+
+        // --- Event Listener untuk tombol Unduh ---
+        downloadBtn.addEventListener('click', () => {
+            const qrCanvas = qrcodeContainer.querySelector('canvas');
+            if (qrCanvas) {
+                const link = document.createElement('a');
+                link.download = `QRIS_Rp${amountInput.value}.png`;
+                link.href = qrCanvas.toDataURL('image/png');
+                link.click();
+            }
+        });
+
+        // --- Event Listener untuk tombol Reset/Buat Lagi ---
+        resetBtn.addEventListener('click', () => {
+            step3.classList.add('hidden');
+            step1.classList.remove('hidden');
+            
+            qrInput.value = '';
+            amountInput.value = '';
+            statusEl.textContent = '';
+            amountError.textContent = '';
+            staticQrisData = null;
+            qrcodeContainer.innerHTML = '';
+        });
+    </script>
+
+</body>
+</html>
