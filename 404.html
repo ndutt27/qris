@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <title>404 - Halaman Tidak Ditemukan</title>
+    <!-- Memuat Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #000000;
+            background-image: radial-gradient(at 20% 20%, hsla(212,92%,58%,0.2) 0px, transparent 50%), 
+                              radial-gradient(at 80% 80%, hsla(289,92%,58%,0.2) 0px, transparent 50%);
+        }
+        .error-card { 
+            background-color: rgba(30, 41, 59, 0.5); /* bg-slate-800/50 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md mx-auto text-center">
+        <div class="error-card p-8 rounded-2xl shadow-2xl">
+            <div class="mx-auto bg-slate-700/50 text-amber-400 rounded-lg h-16 w-16 flex items-center justify-center">
+                <!-- Ikon diubah menjadi tanda peringatan -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+
+            <h1 class="mt-6 text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-fuchsia-500">
+                404 - Halaman Hilang
+            </h1>
+            
+            <p class="text-slate-400 mt-3">
+                Maaf, halaman yang Anda cari tidak ada atau mungkin telah dipindahkan.
+            </p>
+            
+            <a href="/index.html" class="inline-block mt-8 bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
+                Kembali ke Halaman Utama
+            </a>
+        </div>
+        
+        <footer class="text-center mt-8 text-slate-500 text-sm">
+  <p>&copy; 2025 xlordcode. Seluruh Hak Cipta Dilindungi.</p>
+</footer>
+    </div>
+
+</body>
+</html>
