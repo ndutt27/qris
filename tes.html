@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Coba mode profesional (beta) di Pictlord untuk kustomisasi foto photobooth yang lebih lanjut. Atur layout, filter, dan elemen lainnya secara bebas.">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8667528284162358"
+     crossorigin="anonymous"></script>
+    <title>Bilik Foto | Pictlord</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="images/pictlord logo.png" />
+    <link rel="apple-touch-icon" href="images/pictlord logo.png">
+    <!-- Include Fabric.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <style>
+        :root {
+            --light-bg: #e0e5ec;
+            --light-text: #555;
+            --light-shadow-dark: #a3b1c6;
+            --light-shadow-light: #ffffff;
+            --light-accent: #E28585;
+        }
+
+        .dark-mode {
+            --light-bg: #2d343c;
+            --light-text: #e0e5ec;
+            --light-shadow-dark: #242a30;
+            --light-shadow-light: #363e48;
+            --light-accent: #ff85a1;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+
+        /* --- Base Styles --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 62.5%; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--light-text);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* --- Header --- */
+        #main-header {
+            width: 95%; max-width: 500px; margin: 2rem auto; padding: 8px;
+            display: flex; justify-content: space-between; align-items: center;
+            background-color: #384048; border-radius: 50px; animation: fadeInUp 0.5s ease-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .side-logo { font-size: 2.3rem; font-weight: 600; color: #e0e5ec; text-decoration: none; padding-left: 15px; }
+        .side-logo span { color: #20c997; }
+        #theme-toggle {
+            width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: flex;
+            justify-content: center; align-items: center; background-color: #2d343c; color: #e0e5ec;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        #theme-toggle:active { transform: scale(0.95); }
+        #theme-toggle svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; }
+        #sun-icon { display: block; } #moon-icon { display: none; }
+        .dark-mode #sun-icon { display: none; } .dark-mode #moon-icon { display: block; }
+        body:not(.dark-mode) #main-header { background-color: #f0f2f5; border: 1px solid rgba(0, 0, 0, 0.1); }
+        body:not(.dark-mode) .side-logo { color: #333; }
+        body:not(.dark-mode) #theme-toggle { background-color: #e4e6eb; color: #333; }
+
+        /* --- Main Content & Layout --- */
+        #main-section { display: flex; justify-content: center; align-items: center; width: 100%; }
+        .canvas-centered { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; width: 100%; max-width: 1200px; }
+
+        /* Desktop Layout: Video left, Photos right */
+        .camera-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            width: 100%;
+            animation: fadeInUp 0.5s ease-out 0.1s; animation-fill-mode: both;
+        }
+        #videoContainer {
+            position: relative;
+            flex-shrink: 0;
+            width: 100%; max-width: 640px; border-radius: 20px;
+            overflow: hidden; box-shadow: inset 5px 5px 15px var(--light-shadow-dark), inset -5px -5px 15px var(--light-shadow-light);
+            background: #000;
+        }
+        video { width: 100%; display: block; border-radius: 20px; transition: transform 0.4s ease, filter 0.3s ease; }
+        video.mirrored { transform: scaleX(-1); }
+
+        #photoContainer {
+            display: flex;
+            flex-direction: column; /* Stack photos vertically on desktop */
+            gap: 15px;
+            max-height: 480px; /* Approx height of video */
+            overflow-y: auto;
+            padding-right: 10px;
+            width: 190px; /* Width for stacked photos */
+        }
+
+        .photo-wrapper {
+            position: relative; cursor: pointer; border-radius: 12px;
+            animation: zoomIn 0.4s ease-out; overflow: hidden;
+            width: 160px; /* Fixed width */
+            height: 120px; /* Fixed height */
+        }
+        .photo {
+            width: 100%; height: 100%; object-fit: cover;
+            box-shadow: 5px 5px 10px var(--light-shadow-dark), -5px -5px 10px var(--light-shadow-light);
+            display: block; transition: filter 0.3s ease;
+        }
+        .photo-placeholder {
+            width: 100%; height: 100%; border-radius: 12px;
+            box-shadow: inset 3px 3px 7px var(--light-shadow-dark), inset -3px -3px 7px var(--light-shadow-light);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.4rem; color: var(--light-text); opacity: 0.7;
+        }
+        .photo-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); color: white;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2rem; font-weight: 500; opacity: 0;
+            transition: opacity 0.3s ease; pointer-events: none;
+        }
+        .photo-wrapper:hover .photo-overlay { opacity: 1; }
+        .photo-wrapper:hover .photo { filter: brightness(0.6); }
+
+        /* --- Buttons & Controls --- */
+        .neumorphic-btn {
+            border: none; background: var(--light-bg); color: var(--light-text);
+            font-family: 'Poppins', sans-serif; font-weight: 500; cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 5px 5px 10px var(--light-shadow-dark), -5px -5px 10px var(--light-shadow-light);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .neumorphic-btn:hover { color: var(--light-accent); }
+        .neumorphic-btn:active, .neumorphic-btn.active {
+            box-shadow: inset 5px 5px 10px var(--light-shadow-dark), inset -5px -5px 10px var(--light-shadow-light);
+            color: var(--light-accent); transform: scale(0.98);
+        }
+        .neumorphic-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .neumorphic-btn img { width: 20px; }
+        .action-buttons { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        #startBtn, #doneBtn, #uploadBtn { font-size: 1.6rem; padding: 12px 25px; border-radius: 30px; }
+        #doneBtn { display: none; } #mirrorBtn { width: 50px; height: 50px; border-radius: 50%; }
+
+        /* --- Controls Panel --- */
+        #progressCounter { font-size: 2.2rem; font-weight: 600; }
+        .controls-panel {
+            display: flex; flex-direction: column; gap: 20px; align-items: center; padding: 20px;
+            border-radius: 20px; background: var(--light-bg);
+            box-shadow: 5px 5px 10px var(--light-shadow-dark), -5px -5px 10px var(--light-shadow-light);
+            animation: fadeInUp 0.5s ease-out 0.2s; animation-fill-mode: both;
+        }
+        .select-container { display: flex; gap: 15px; justify-content: center; width: 100%; }
+        .filter-container { display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .filterBtn { width: 45px; height: 45px; border-radius: 50%; }
+        #normalFilterId, #sepiaFilterId, #bnwFilterId, #vintageFilterId, #grayFilterId, #smoothFilterId { background-size: cover; }
+        #normalFilterId { background-image: url(assets/normal-icon.jpg); }
+        #sepiaFilterId { background-image: url(assets/sepiaBg.jpg); }
+        #bnwFilterId { background-image: url(assets/bnw-icon.jpg); }
+        #vintageFilterId { background-image: url(assets/vintage-icon.jpg); }
+        #grayFilterId { background-image: url(assets/grayscale-icon.jpg); }
+        #smoothFilterId { background-image: url(assets/smooth-icon.jpg); }
+        .custom-select {
+            padding: 8px 15px; border-radius: 10px; border: none; background: var(--light-bg);
+            box-shadow: inset 3px 3px 7px var(--light-shadow-dark), inset -3px -3px 7px var(--light-shadow-light);
+            color: var(--light-text); font-size: 1.4rem; cursor: pointer;
+        }
+
+        /* --- Overlays & Notification --- */
+        #countdownText, #flash, #blackScreen { position: absolute; z-index: 10; }
+        #countdownText { top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10rem; font-weight: 600; color: rgba(255, 255, 255, 0.8); display: none; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); animation: zoomIn 0.3s ease-in-out; }
+        #flash { position:fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 999; }
+        #blackScreen { top: 0; left: 0; width: 100%; height: 100%; background: #1a1a1a; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; transition: opacity 1s ease-in-out; }
+        #retake-notification { position: fixed; top: 20px; left: 50%; display: flex; align-items: center; gap: 12px; background-color: #1C1C1E; color: rgba(255, 255, 255, 0.9); padding: 12px 20px; border-radius: 50px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); z-index: 1001; font-size: 1.4rem; font-weight: 500; opacity: 0; transform: translate(-50%, -50px) scale(0.95); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease; pointer-events: none; }
+        #retake-notification.show { opacity: 1; transform: translate(-50%, 0) scale(1); pointer-events: auto; }
+
+        /* --- Upload Modal --- */
+        #upload-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1002; backdrop-filter: blur(5px); }
+        .modal-content { background-color: var(--light-bg); padding: 30px 40px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); text-align: center; color: var(--light-text); }
+        #upload-counter { font-size: 1.8rem; font-weight: 500; }
+
+        /* --- Responsive Design (Mobile Layout) --- */
+        @media only screen and (max-width: 1024px) {
+            .camera-container {
+                flex-direction: column; /* Stack video on top of photos on mobile */
+                align-items: center;
+            }
+            #photoContainer {
+                flex-direction: row; /* Horizontal row for photos */
+                flex-wrap: wrap; /* Allow wrapping */
+                justify-content: center;
+                margin-top: 20px;
+                width: 100%;
+                max-height: none; /* Remove height limit */
+                overflow-y: visible; /* Remove scroll */
+                padding-right: 0;
+            }
+            .photo-wrapper { width: 120px; height: 90px; }
+        }
+        @media only screen and (max-width: 540px) {
+            html { font-size: 55%; } body { padding: 10px; }
+            #photoContainer { gap: 10px; }
+            .photo-wrapper { width: 100px; height: 75px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="retake-notification">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="22px" height="22px"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+        <span>Untuk foto ulang, klik foto yang ingin diganti.</span>
+    </div>
+
+    <header id="main-header">
+        <a href="#" class="side-logo">pict<span>lord</span></a>
+        <div class="header-buttons">
+            <button id="theme-toggle" title="Toggle Theme">
+                <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <main id="main-section">
+        <div class="canvas-centered">
+            <div class="camera-container">
+                <div id="videoContainer">
+                    <video id="video" autoplay playsinline class="mirrored"></video>
+                    <div id="flash"></div>
+                    <div id="blackScreen">Waiting for camera access...</div>
+                    <div id="countdownText">3</div>
+                </div>
+                <div id="photoContainer"></div>
+            </div>
+
+            <p id="progressCounter">0/4</p>
+
+            <div class="controls-panel">
+                <div class="filter-container">
+                    <button id="mirrorBtn" class="neumorphic-btn active" title="Mirror Camera">
+                        <img src="images/mirror-icon.svg" alt="Mirror Icon">
+                    </button>
+                    <button id="vintageFilterId" class="neumorphic-btn filterBtn" data-filter="vintage" title="Vintage"></button>
+                    <button id="grayFilterId" class="neumorphic-btn filterBtn" data-filter="gray" title="Grayscale"></button>
+                    <button id="smoothFilterId" class="neumorphic-btn filterBtn" data-filter="smooth" title="Smooth"></button>
+                    <button id="bnwFilterId" class="neumorphic-btn filterBtn" data-filter="grayscale" title="B&W"></button>
+                    <button id="sepiaFilterId" class="neumorphic-btn filterBtn" data-filter="sepia" title="Sepia"></button>
+                    <button id="normalFilterId" class="neumorphic-btn filterBtn active" data-filter="none" title="Normal"></button>
+                </div>
+                <div class="select-container">
+                    <select id="timerSelect" class="custom-select">
+                        <option value="3">3 detik</option>
+                        <option value="5" selected>5 detik</option>
+                        <option value="10">10 detik</option>
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <input type="file" id="uploadInput" accept="image/*" style="display:none;" multiple>
+                    <button id="uploadBtn" class="neumorphic-btn" title="Upload Photo">
+                        <img src="assets/icons/upload-icon.png" alt="Upload Icon">
+                        Upload
+                    </button>
+                    <button id="startBtn" class="neumorphic-btn">START</button>
+                    <button id="doneBtn" class="neumorphic-btn">DONE</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="upload-modal">
+        <div class="modal-content">
+            <p id="upload-counter">Uploading...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const video = document.getElementById('video');
+            const mirrorBtn = document.getElementById('mirrorBtn');
+            const blackScreen = document.getElementById('blackScreen');
+            const countdownText = document.getElementById('countdownText');
+            const progressCounter = document.getElementById('progressCounter');
+            const startBtn = document.getElementById('startBtn');
+            const doneBtn = document.getElementById('doneBtn');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const uploadInput = document.getElementById('uploadInput');
+            const flash = document.getElementById('flash');
+            const photoContainer = document.getElementById('photoContainer');
+            const filterButtons = document.querySelectorAll('.filterBtn');
+            const themeToggle = document.getElementById('theme-toggle');
+            const notification = document.getElementById('retake-notification');
+            const uploadModal = document.getElementById('upload-modal');
+            const uploadCounter = document.getElementById('upload-counter');
+            const timerSelect = document.getElementById('timerSelect');
+
+            // --- Get URL Parameters ---
+            const urlParams = new URLSearchParams(window.location.search);
+            const poseParam = urlParams.get('pose') || '4';
+            const frameSrc = urlParams.get('frame');
+            const frameName = urlParams.get('name');
+            const layout = urlParams.get('layout');
+
+            // --- State Variables ---
+            let fabricCanvas; // For Fabric.js
+            let images = [];
+            let fileMetadatas = [];
+            let isCapturing = false;
+            let isVideoMirrored = true;
+            let currentFilter = 'none'; // To track selected filter for Fabric.js
+            let TOTAL_PHOTOS;
+
+            const initializePoseCount = () => {
+                let count = parseInt(poseParam, 10);
+                if (isNaN(count)) count = parseInt(poseParam.replace(/[^0-9]/g, ''), 10);
+                TOTAL_PHOTOS = (!isNaN(count) && count > 0) ? count : 4;
+            };
+
+            // --- Core Functions ---
+            const applyTheme = (theme) => document.body.classList.toggle('dark-mode', theme === 'dark');
+
+            const startCamera = async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 1280, height: 720 } });
+                    video.srcObject = stream;
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        // Initialize Fabric.js canvas once video dimensions are known
+                        fabricCanvas = new fabric.Canvas(null, { width: video.videoWidth, height: video.videoHeight });
+                        setTimeout(() => { blackScreen.style.opacity = 0; setTimeout(() => blackScreen.style.display = 'none', 1000); }, 500);
+                    };
+                } catch (err) {
+                    console.error("Camera Access Denied:", err);
+                    blackScreen.textContent = "Kamera tidak diizinkan.";
+                }
+            };
+
+            const showCountdown = async (duration) => {
+                countdownText.style.display = "block";
+                for (let count = duration; count > 0; count--) {
+                    countdownText.textContent = count;
+                    countdownText.style.animation = 'none';
+                    countdownText.offsetHeight; // Trigger reflow
+                    countdownText.style.animation = 'zoomIn 0.3s ease-in-out';
+                    await new Promise(res => setTimeout(res, 1000));
+                }
+                countdownText.style.display = "none";
+            };
+
+            // --- Updated capturePhoto function using Fabric.js ---
+            const capturePhoto = async () => {
+                flash.style.opacity = 1;
+                setTimeout(() => flash.style.opacity = 0, 200);
+
+                if (!fabricCanvas || video.videoWidth === 0) {
+                    console.error("Fabric canvas not ready or video has no dimensions.");
+                    return null;
+                }
+
+                const fabricImage = new fabric.Image(video, {
+                    flipX: isVideoMirrored
+                });
+                
+                fabricImage.filters = []; // Clear previous filters
+
+                // Apply the selected filter using Fabric.js filters
+                switch (currentFilter) {
+                    case 'sepia':
+                        fabricImage.filters.push(new fabric.Image.filters.Sepia());
+                        break;
+                    case 'grayscale':
+                    case 'gray':
+                        fabricImage.filters.push(new fabric.Image.filters.Grayscale());
+                        break;
+                    case 'vintage':
+                        fabricImage.filters.push(new fabric.Image.filters.Sepia());
+                        fabricImage.filters.push(new fabric.Image.filters.Contrast({ contrast: 0.1 }));
+                        break;
+                    case 'smooth':
+                         fabricImage.filters.push(new fabric.Image.filters.Blur({ blur: 0.15 }));
+                        break;
+                }
+                
+                // This is an async operation in some Fabric.js versions, but here it's synchronous
+                fabricImage.applyFilters();
+                
+                fabricCanvas.clear();
+                fabricCanvas.add(fabricImage);
+                
+                return fabricCanvas.toDataURL({ format: 'jpeg', quality: 0.9 });
+            };
+
+            const checkDeviceOrientation = () => {
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                if (isMobile && window.innerHeight > window.innerWidth) {
+                    alert("Untuk hasil terbaik, silakan putar layar Anda ke mode lanskap (horizontal).");
+                }
+            };
+
+            // --- Main Application Logic ---
+            const updatePhotoDisplay = () => {
+                if (images.length > TOTAL_PHOTOS) {
+                    images.length = TOTAL_PHOTOS;
+                    fileMetadatas.length = TOTAL_PHOTOS;
+                }
+                while (images.length < TOTAL_PHOTOS) {
+                    images.push(null);
+                    fileMetadatas.push(null);
+                }
+
+                photoContainer.innerHTML = '';
+                images.forEach((imageData, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('photo-wrapper');
+                    wrapper.dataset.index = index;
+                    wrapper.addEventListener('click', handlePhotoClick);
+
+                    if (imageData) {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = imageData;
+                        imgElement.classList.add('photo');
+                        const overlay = document.createElement('div');
+                        overlay.classList.add('photo-overlay');
+                        overlay.innerHTML = '<span>Retake</span>';
+                        wrapper.appendChild(imgElement);
+                        wrapper.appendChild(overlay);
+                    } else {
+                        const placeholder = document.createElement('div');
+                        placeholder.classList.add('photo-placeholder');
+                        wrapper.appendChild(placeholder);
+                    }
+                    photoContainer.appendChild(wrapper);
+                });
+
+                const photoCount = images.filter(img => img !== null).length;
+                progressCounter.textContent = `${photoCount}/${TOTAL_PHOTOS}`;
+                startBtn.disabled = photoCount >= TOTAL_PHOTOS || isCapturing;
+                uploadBtn.disabled = photoCount >= TOTAL_PHOTOS || isCapturing;
+                doneBtn.style.display = (photoCount === TOTAL_PHOTOS) ? 'flex' : 'none';
+                if (!isCapturing) startBtn.innerHTML = (photoCount < TOTAL_PHOTOS) ? 'START' : 'All Set!';
+            };
+
+            const handlePhotoClick = (event) => {
+                if (isCapturing) return;
+                const wrapper = event.currentTarget;
+                const indexToReplace = parseInt(wrapper.dataset.index, 10);
+                images[indexToReplace] = null;
+                fileMetadatas[indexToReplace] = null;
+                updatePhotoDisplay();
+            };
+
+            const startPhotoboothSession = async () => {
+                if (isCapturing || images.filter(img => img !== null).length >= TOTAL_PHOTOS) return;
+                isCapturing = true;
+                startBtn.disabled = true;
+                uploadBtn.disabled = true;
+                startBtn.innerHTML = 'Capturing...';
+
+                const countdownDuration = parseInt(timerSelect.value, 10);
+
+                for (let i = 0; i < TOTAL_PHOTOS; i++) {
+                    if (images[i] === null) {
+                        await showCountdown(countdownDuration);
+                        const newImageData = await capturePhoto();
+                        if (newImageData) {
+                            images[i] = newImageData;
+                            const base64Data = newImageData.split(',')[1];
+                            const byteLength = atob(base64Data).length;
+                            fileMetadatas[i] = { size: byteLength };
+                        }
+                        updatePhotoDisplay();
+                    }
+                }
+
+                isCapturing = false;
+                updatePhotoDisplay();
+
+                if (images.filter(img => img !== null).length === TOTAL_PHOTOS) {
+                    notification.classList.add('show');
+                    setTimeout(() => { notification.classList.remove('show'); }, 5000);
+                }
+            };
+
+            const readFileAsDataURL = (file) => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
+                reader.readAsDataURL(file);
+            });
+
+            const handleImageUpload = async (event) => {
+                const files = event.target.files;
+                if (!files || files.length === 0) return;
+
+                const emptySlotsIndexes = images.map((img, index) => img === null ? index : -1).filter(index => index !== -1);
+                if (emptySlotsIndexes.length === 0) {
+                    alert("Semua slot foto sudah terisi. Klik foto untuk mengambil ulang.");
+                    uploadInput.value = '';
+                    return;
+                }
+
+                const filesToProcess = Array.from(files).slice(0, emptySlotsIndexes.length);
+                uploadModal.style.display = 'flex';
+
+                for (let i = 0; i < filesToProcess.length; i++) {
+                    const file = filesToProcess[i];
+                    const indexToFill = emptySlotsIndexes[i];
+                    uploadCounter.textContent = `Uploading ${i + 1} of ${filesToProcess.length}...`;
+                    try {
+                        const imageData = await readFileAsDataURL(file);
+                        images[indexToFill] = imageData;
+                        fileMetadatas[indexToFill] = { size: file.size };
+                        updatePhotoDisplay();
+                    } catch (error) {
+                        console.error("Gagal membaca file:", error);
+                        uploadCounter.textContent = `Error reading file.`;
+                    }
+                }
+
+                setTimeout(() => { uploadModal.style.display = 'none'; }, 500);
+                uploadInput.value = '';
+            };
+
+            // --- Event Listeners ---
+            themeToggle.addEventListener('click', () => {
+                const newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+            startBtn.addEventListener('click', startPhotoboothSession);
+            uploadBtn.addEventListener('click', () => {
+                alert("note: Pastikan ukuran total foto Anda tidak melebihi 5MB. Gambar yang besar dapat menyebabkan masalah penyimpanan.");
+                uploadInput.click();
+            });
+            uploadInput.addEventListener('change', handleImageUpload);
+            mirrorBtn.addEventListener('click', () => { isVideoMirrored = !isVideoMirrored; video.classList.toggle('mirrored'); mirrorBtn.classList.toggle('active'); });
+
+            // Updated filter button listener
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentFilter = button.dataset.filter; // Set state for Fabric.js
+                    // Apply CSS filter for live preview
+                    const filterValue = { 'vintage': 'sepia(0.5) contrast(1.1)', 'gray': 'grayscale(1)', 'smooth': 'blur(0.5px)', 'grayscale': 'grayscale(1)', 'sepia': 'sepia(0.7)', 'none': 'none' }[currentFilter];
+                    video.style.filter = filterValue;
+                });
+            });
+
+            doneBtn.addEventListener('click', () => {
+                const totalSize = fileMetadatas.reduce((total, meta) => total + (meta ? meta.size : 0), 0);
+                if (totalSize > 5 * 1024 * 1024) {
+                    alert("Ukuran total gambar melebihi batas 5MB. Harap unggah gambar yang lebih kecil.");
+                    return;
+                }
+                const photoCount = images.filter(img => img !== null).length;
+                if (photoCount === TOTAL_PHOTOS) {
+                    sessionStorage.setItem('photoArray', JSON.stringify(images));
+                    sessionStorage.setItem('poseCount', TOTAL_PHOTOS);
+                    if (frameSrc) sessionStorage.setItem('selectedFrame', frameSrc);
+                    if (frameName) sessionStorage.setItem('selectedFrameName', frameName);
+                    if (layout) sessionStorage.setItem('selectedLayout', layout); else sessionStorage.removeItem('selectedLayout');
+                    window.location.href = 'customize8.html';
+                } else {
+                    alert(`Silakan ambil atau unggah ${TOTAL_PHOTOS} foto terlebih dahulu.`);
+                }
+            });
+
+            window.addEventListener("beforeunload", () => { if (video.srcObject) { video.srcObject.getTracks().forEach(track => track.stop()); } });
+
+            // --- Initialization ---
+            initializePoseCount();
+            checkDeviceOrientation();
+            applyTheme(localStorage.getItem('theme') || 'dark');
+            startCamera();
+            updatePhotoDisplay();
+        });
+    </script>
+</body>
+</html>
