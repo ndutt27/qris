@@ -3,341 +3,431 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qr Generator</title>
+    <title>Get Qr</title>
     <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            --glass-bg: rgba(255, 255, 255, 0.9);
-            --glass-border: rgba(255, 255, 255, 0.5);
-            --input-bg: #f1f5f9;
-            --text-main: #0f172a;
-            --text-secondary: #64748b;
+            --bg-body: #F0F4F8;
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --accent: #EC4899;
+            --text-dark: #1E293B;
+            --text-gray: #64748B;
+            --card-bg: #ffffff;
+            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
+            --shadow-3d: 0 4px 0 #E2E8F0;
         }
 
-        * { box-sizing: border-box; outline: none; }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(-45deg, #FF3CAC, #784BA0, #2B86C5);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-            color: var(--text-main);
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .main-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            padding: 2.5rem;
+        .container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1200px;
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 3rem;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            align-items: start;
         }
 
-        @media (max-width: 900px) {
-            .main-card { grid-template-columns: 1fr; gap: 2rem; padding: 1.5rem; }
+        /* --- LEFT PANEL: CONFIG --- */
+        .config-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
         }
 
-        /* ----- KOLOM KIRI (KONTROL) ----- */
-        .controls-section {
-            display: flex; flex-direction: column; gap: 1.2rem;
-            max-height: 80vh; overflow-y: auto; padding-right: 10px;
+        .header-box {
+            margin-bottom: 10px;
         }
+        .header-box h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-box p { color: var(--text-gray); margin: 5px 0 0; }
+
+        /* Card Style */
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid #fff;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-dark);
+        }
+        .card-title i { color: var(--primary); }
+
+        /* Inputs */
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: var(--text-gray); }
         
-        /* Custom Scrollbar */
-        .controls-section::-webkit-scrollbar { width: 6px; }
-        .controls-section::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
-        header h1 {
-            font-size: 1.8rem; font-weight: 700; margin: 0;
-            background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        header p { margin: 5px 0 0; color: var(--text-secondary); font-size: 0.9rem; }
-
-        .section-title {
-            font-size: 0.75rem; font-weight: 700; color: var(--text-secondary);
-            text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;
-        }
-
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-
-        label { font-size: 0.85rem; font-weight: 500; margin-bottom: 0.3rem; display: block; }
-
         input[type="text"], select {
-            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0;
-            background: var(--input-bg); font-family: inherit; font-size: 0.95rem; transition: 0.3s;
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            border: 2px solid #E2E8F0;
+            background: #F8FAFC;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: all 0.2s ease;
         }
         input[type="text"]:focus, select:focus {
-            background: #fff; border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
 
-        /* File Upload Styling */
-        .file-upload-wrapper {
-            position: relative; overflow: hidden; display: inline-block; width: 100%;
-        }
-        .btn-upload {
-            border: 2px dashed #cbd5e1; color: var(--text-secondary); background: white;
-            padding: 12px; border-radius: 10px; font-weight: 500; cursor: pointer; text-align: center;
-            transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-upload:hover { border-color: #8b5cf6; color: #8b5cf6; background: #fdf4ff; }
-        .file-upload-wrapper input[type=file] {
-            font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;
-        }
-
-        /* Sliders */
+        /* 3D Sliders */
         input[type="range"] {
-            width: 100%; -webkit-appearance: none; background: transparent;
+            width: 100%; -webkit-appearance: none; background: transparent; margin: 10px 0;
         }
         input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
-            background: #8b5cf6; margin-top: -6px; cursor: pointer;
+            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
+            background: var(--primary); border: 3px solid #fff; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; margin-top: -8px;
         }
         input[type="range"]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px;
+            width: 100%; height: 6px; background: #E2E8F0; border-radius: 10px;
         }
 
-        /* Color Pickers */
-        .color-row { display: flex; gap: 1rem; }
-        .color-wrapper {
-            flex: 1; background: white; padding: 8px 12px; border-radius: 10px; border: 1px solid #e2e8f0;
-            display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+        /* Drag & Drop Zone */
+        .drop-zone {
+            border: 2px dashed #CBD5E1;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #F8FAFC;
+            position: relative;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--primary);
+            background: #EEF2FF;
+            transform: scale(0.99);
+        }
+        .drop-zone i { font-size: 2.5rem; color: #94A3B8; margin-bottom: 10px; transition: 0.3s; }
+        .drop-zone p { margin: 0; color: var(--text-gray); font-weight: 600; }
+        .drop-zone.has-file { border-color: #10B981; background: #ECFDF5; }
+        .drop-zone.has-file i { color: #10B981; }
+        .drop-zone input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+        /* Grid for settings */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        /* Color Pickers Modern */
+        .color-item {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #F8FAFC; padding: 10px 15px; border-radius: 14px; border: 1px solid #E2E8F0;
         }
         input[type="color"] {
-            border: none; width: 28px; height: 28px; background: none; cursor: pointer;
+            -webkit-appearance: none; border: none; width: 32px; height: 32px;
+            border-radius: 10px; cursor: pointer; padding: 0; background: none;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); }
+
+        /* --- RIGHT PANEL: PREVIEW --- */
+        .preview-panel {
+            position: sticky;
+            top: 20px;
         }
 
-        /* ----- KOLOM KANAN (PREVIEW) ----- */
-        .preview-section {
-            background: rgba(255,255,255,0.6); border-radius: 20px; padding: 2rem;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border: 1px dashed #cbd5e1; position: sticky; top: 20px;
+        .preview-card {
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            border: 1px solid #fff;
+            text-align: center;
         }
 
         #canvas {
-            background: white; padding: 20px; border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-bottom: 2rem;
+            background: #fff;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #canvas:hover { transform: scale(1.03) rotate(1deg); }
+
+        /* 3D Buttons */
+        .btn-group { display: grid; gap: 12px; width: 100%; }
+        
+        .btn-3d {
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            top: 0;
         }
 
-        .download-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; }
-        .btn-dl {
-            padding: 12px; border: none; border-radius: 12px; font-weight: 600; color: white;
-            cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        .btn-png { 
+            background: #3B82F6; 
+            box-shadow: 0 6px 0 #2563EB, 0 10px 10px rgba(59, 130, 246, 0.3); 
         }
-        .btn-dl:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.15); }
-        .btn-png { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .btn-jpg { background: linear-gradient(135deg, #ec4899, #db2777); }
-        .btn-svg { background: linear-gradient(135deg, #10b981, #059669); }
+        .btn-jpg { 
+            background: #EC4899; 
+            box-shadow: 0 6px 0 #DB2777, 0 10px 10px rgba(236, 72, 153, 0.3); 
+        }
+        .btn-svg { 
+            background: #10B981; 
+            box-shadow: 0 6px 0 #059669, 0 10px 10px rgba(16, 185, 129, 0.3); 
+        }
 
+        .btn-3d:active {
+            top: 6px;
+            box-shadow: 0 0 0 transparent, inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+            .preview-panel { order: -1; position: relative; top: 0; }
+            .preview-card { padding: 30px 20px; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="main-card">
-        <div class="controls-section">
-            <header>
-                <h1>Ultimate QR</h1>
-                <p>Buat QR Code kustom dengan Logo & Gaya Modern.</p>
-            </header>
-
-            <div class="section-title">Konten Utama</div>
-            <div>
-                <label>URL Website / Teks</label>
-                <input type="text" id="content" value="https://pictlord.me" placeholder="Masukkan link...">
-            </div>
-
-            <div class="section-title">Gaya Pola (Pattern)</div>
-            <div>
-                <label>Bentuk Titik (Dots)</label>
-                <select id="dotStyle">
-                    <option value="square">Kotak (Square)</option>
-                    <option value="dots">Titik (Dots)</option>
-                    <option value="rounded">Rounded</option>
-                    <option value="extra-rounded">Extra Rounded</option>
-                    <option value="classy">Classy</option>
-                    <option value="classy-rounded">Classy Rounded</option>
-                </select>
-            </div>
-
-            <div class="section-title">Gaya Mata (Corners)</div>
-            <div class="form-row">
-                <div>
-                    <label>Bingkai Luar</label>
-                    <select id="cornerSquareStyle">
-                        <option value="extra-rounded">Rounded</option>
-                        <option value="square">Kotak</option>
-                        <option value="dot">Lingkaran</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Bola Dalam</label>
-                    <select id="cornerDotStyle">
-                        <option value="dot">Lingkaran</option>
-                        <option value="square">Kotak</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="section-title">Logo & Branding</div>
+    <div class="container">
+        <div class="config-panel">
             
-            <div class="file-upload-wrapper">
-                <button class="btn-upload">
-                    <span>📂 Upload Logo (PNG/JPG)</span>
-                </button>
-                <input type="file" id="logoInput" accept="image/*">
+            <div class="header-box">
+                <h1>GenQR Pro</h1>
+                <p>Generator QR Code Modern dengan gaya 3D.</p>
             </div>
 
-            <div class="form-row">
-                <div>
-                    <label>Ukuran Logo</label>
-                    <input type="range" id="logoSize" min="0.2" max="0.6" step="0.05" value="0.4">
-                </div>
-                <div>
-                    <label>Margin Logo</label>
-                    <input type="range" id="logoMargin" min="0" max="20" step="1" value="5">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-link"></i> Konten Utama</div>
+                <div class="input-group">
+                    <label>URL / Teks</label>
+                    <input type="text" id="content" value="https://pictlord.me" placeholder="Masukkan link website...">
                 </div>
             </div>
 
-            <div class="section-title">Warna</div>
-            <div class="color-row">
-                <div class="color-wrapper">
-                    <span>QR Color</span>
-                    <input type="color" id="colorDots" value="#1e293b">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-image"></i> Personalisasi Logo</div>
+                <div class="drop-zone" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p id="dropText">Drag & Drop Logo di sini</p>
+                    <span style="font-size: 0.8rem; color: #94a3b8;">atau klik untuk memilih file</span>
+                    <input type="file" id="logoInput" accept="image/*">
                 </div>
-                <div class="color-wrapper">
-                    <span>Background</span>
-                    <input type="color" id="colorBg" value="#ffffff">
+                
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div>
+                        <label>Ukuran</label>
+                        <input type="range" id="logoSize" min="0.2" max="0.6" step="0.05" value="0.4">
+                    </div>
+                    <div>
+                        <label>Jarak (Margin)</label>
+                        <input type="range" id="logoMargin" min="0" max="20" step="1" value="5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fas fa-paint-brush"></i> Tampilan & Warna</div>
+                
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Pola (Dots)</label>
+                        <select id="dotStyle">
+                            <option value="square">Kotak</option>
+                            <option value="dots">Titik</option>
+                            <option value="rounded">Rounded</option>
+                            <option value="classy">Classy</option>
+                            <option value="classy-rounded">Soft Classy</option>
+                            <option value="extra-rounded">Bulat Penuh</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Sudut (Mata)</label>
+                        <select id="cornerStyle">
+                            <option value="square">Kotak Tajam</option>
+                            <option value="extra-rounded">Rounded</option>
+                            <option value="dot">Lingkaran</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="color-item">
+                        <span>Warna QR</span>
+                        <input type="color" id="colorDots" value="#1E293B">
+                    </div>
+                    <div class="color-item">
+                        <span>Background</span>
+                        <input type="color" id="colorBg" value="#ffffff">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="preview-section">
-            <div id="canvas"></div>
-            <div class="download-actions">
-                <button class="btn-dl btn-png" onclick="downloadQR('png')">PNG</button>
-                <button class="btn-dl btn-jpg" onclick="downloadQR('jpeg')">JPG</button>
-                <button class="btn-dl btn-svg" onclick="downloadQR('svg')">SVG</button>
+        <div class="preview-panel">
+            <div class="preview-card">
+                <h3 style="margin-top:0; margin-bottom: 20px; color: var(--text-gray);">Live Preview</h3>
+                <div id="canvas"></div>
+                
+                <div class="btn-group">
+                    <button class="btn-3d btn-png" onclick="downloadQR('png')">
+                        <i class="fas fa-download"></i> Unduh PNG
+                    </button>
+                    <button class="btn-3d btn-jpg" onclick="downloadQR('jpeg')">
+                        <i class="fas fa-image"></i> Unduh JPG
+                    </button>
+                    <button class="btn-3d btn-svg" onclick="downloadQR('svg')">
+                        <i class="fas fa-vector-square"></i> Unduh SVG (Vektor)
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Variabel untuk menyimpan data gambar logo
         let uploadedLogo = "";
-
-        // Inisialisasi QR Code
+        
+        // Inisialisasi QR Code Styling
         const qrCode = new QRCodeStyling({
             width: 300,
             height: 300,
             type: "svg",
             data: "https://pictlord.me",
             image: "",
-            qrOptions: {
-                errorCorrectionLevel: 'H' // Tingkat koreksi tinggi agar logo aman
-            },
-            dotsOptions: {
-                color: "#1e293b",
-                type: "square"
-            },
-            backgroundOptions: {
-                color: "#ffffff",
-            },
-            cornersSquareOptions: {
-                type: "extra-rounded"
-            },
-            cornersDotOptions: {
-                type: "dot"
-            },
-            imageOptions: {
-                crossOrigin: "anonymous",
-                margin: 5,
-                imageSize: 0.4
-            }
+            qrOptions: { errorCorrectionLevel: 'H' },
+            dotsOptions: { color: "#1E293B", type: "rounded" },
+            backgroundOptions: { color: "#ffffff" },
+            cornersSquareOptions: { type: "extra-rounded" },
+            imageOptions: { crossOrigin: "anonymous", margin: 5, imageSize: 0.4 }
         });
 
         qrCode.append(document.getElementById("canvas"));
 
-        // Fungsi Utama Update
+        // Main Update Function
         function updateQR() {
-            const content = document.getElementById("content").value;
-            const dotStyle = document.getElementById("dotStyle").value;
-            const cornerSquareStyle = document.getElementById("cornerSquareStyle").value;
-            const cornerDotStyle = document.getElementById("cornerDotStyle").value;
-            const colorDots = document.getElementById("colorDots").value;
-            const colorBg = document.getElementById("colorBg").value;
-            const logoSize = parseFloat(document.getElementById("logoSize").value);
-            const logoMargin = parseInt(document.getElementById("logoMargin").value);
-
-            qrCode.update({
-                data: content,
-                image: uploadedLogo, // Menggunakan logo yang diupload
+            const options = {
+                data: document.getElementById("content").value,
+                image: uploadedLogo,
                 dotsOptions: {
-                    color: colorDots,
-                    type: dotStyle
+                    color: document.getElementById("colorDots").value,
+                    type: document.getElementById("dotStyle").value
                 },
                 backgroundOptions: {
-                    color: colorBg
+                    color: document.getElementById("colorBg").value
                 },
                 cornersSquareOptions: {
-                    type: cornerSquareStyle
-                },
-                cornersDotOptions: {
-                    type: cornerDotStyle
+                    type: document.getElementById("cornerStyle").value
                 },
                 imageOptions: {
-                    imageSize: logoSize,
-                    margin: logoMargin
+                    imageSize: parseFloat(document.getElementById("logoSize").value),
+                    margin: parseInt(document.getElementById("logoMargin").value)
                 }
-            });
+            };
+            qrCode.update(options);
         }
 
-        // Event Listener untuk Upload Logo
-        document.getElementById("logoInput").addEventListener("change", function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    uploadedLogo = event.target.result; // Simpan base64 image
-                    updateQR(); // Update QR
-                    
-                    // Ubah teks tombol agar user tau sudah upload
-                    document.querySelector('.btn-upload span').innerText = "✅ Logo Terpasang";
-                }
-                reader.readAsDataURL(file);
-            }
+        // --- Logic Drag & Drop ---
+        const dropZone = document.getElementById('dropZone');
+        const logoInput = document.getElementById('logoInput');
+        const dropText = document.getElementById('dropText');
+
+        // Prevent default behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
         });
 
-        // Event Listener Download
-        function downloadQR(format) {
-            qrCode.download({ name: "my-pro-qr", extension: format });
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
 
-        // Pasang Event Listener ke semua input agar Realtime
-        const inputs = [
-            "content", "dotStyle", "cornerSquareStyle", "cornerDotStyle", 
-            "colorDots", "colorBg", "logoSize", "logoMargin"
-        ];
-        
+        // Highlight drop zone
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        // Handle Drop
+        dropZone.addEventListener('drop', handleDrop, false);
+        logoInput.addEventListener('change', (e) => handleFiles(e.target.files), false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        uploadedLogo = e.target.result;
+                        updateQR();
+                        // UI Feedback
+                        dropZone.classList.add('has-file');
+                        dropText.innerText = "Logo: " + file.name;
+                        dropZone.querySelector('i').className = "fas fa-check-circle";
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    alert("Mohon upload file gambar saja (PNG/JPG).");
+                }
+            }
+        }
+
+        // Download Functions
+        function downloadQR(format) {
+            qrCode.download({ name: "qr-code-3d", extension: format });
+        }
+
+        // Attach Listeners to Inputs
+        const inputs = ["content", "dotStyle", "cornerStyle", "colorDots", "colorBg", "logoSize", "logoMargin"];
         inputs.forEach(id => {
             const el = document.getElementById(id);
             if(el) el.addEventListener(el.type === "text" ? "keyup" : "input", updateQR);
