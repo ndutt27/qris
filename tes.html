@@ -5,20 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Get Qr</title>
     <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-body: #F0F4F8;
-            --primary: #6366F1;
-            --primary-dark: #4F46E5;
-            --accent: #EC4899;
-            --text-dark: #1E293B;
-            --text-gray: #64748B;
+            --bg-body: #f3f8fc;
+            --primary: #4f46e5;
+            --accent: #f43f5e;
+            --text: #1e293b;
             --card-bg: #ffffff;
-            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
-            --shadow-3d: 0 4px 0 #E2E8F0;
+            --shadow-soft: 0 10px 30px -5px rgba(0,0,0,0.06);
+            --border-soft: 1px solid #f1f5f9;
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -26,205 +24,118 @@
         body {
             font-family: 'Nunito', sans-serif;
             background-color: var(--bg-body);
-            color: var(--text-dark);
-            margin: 0;
-            padding: 20px;
+            color: var(--text);
+            margin: 0; padding: 20px;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
+            display: flex; justify-content: center;
         }
 
         .container {
-            width: 100%;
-            max-width: 1200px;
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 40px;
-            align-items: start;
+            width: 100%; max-width: 1200px;
+            display: grid; grid-template-columns: 1fr 420px;
+            gap: 30px; align-items: start;
         }
 
-        /* --- LEFT PANEL: CONFIG --- */
-        .config-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
+        /* --- LEFT PANEL --- */
+        .config-panel { display: flex; flex-direction: column; gap: 20px; }
 
-        .header-box {
-            margin-bottom: 10px;
-        }
         .header-box h1 {
-            font-size: 2rem;
-            font-weight: 800;
-            margin: 0;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2.2rem; font-weight: 800; margin: 0;
+            background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .header-box p { color: var(--text-gray); margin: 5px 0 0; }
+        .header-box p { color: #64748b; margin: 5px 0 0; font-weight: 600; }
 
-        /* Card Style */
         .card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 25px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid #fff;
+            background: var(--card-bg); border-radius: 24px; padding: 25px;
+            box-shadow: var(--shadow-soft); border: var(--border-soft);
         }
 
-        .card-title {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-dark);
+        .card-header {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+            padding-bottom: 15px; border-bottom: 1px dashed #e2e8f0;
         }
-        .card-title i { color: var(--primary); }
+        .card-header i { font-size: 1.2rem; color: var(--primary); background: #eef2ff; padding: 8px; border-radius: 8px; }
+        .card-header span { font-weight: 700; font-size: 1.1rem; }
 
-        /* Inputs */
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: var(--text-gray); }
-        
+        label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+
         input[type="text"], select {
-            width: 100%;
-            padding: 14px 18px;
-            border-radius: 16px;
-            border: 2px solid #E2E8F0;
-            background: #F8FAFC;
-            font-family: inherit;
-            font-size: 1rem;
-            color: var(--text-dark);
-            transition: all 0.2s ease;
+            width: 100%; padding: 12px 16px; border-radius: 12px;
+            border: 2px solid #e2e8f0; background: #f8fafc;
+            font-family: inherit; font-size: 0.95rem; color: var(--text);
+            transition: 0.2s; cursor: pointer;
         }
         input[type="text"]:focus, select:focus {
-            border-color: var(--primary);
-            background: #fff;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            border-color: var(--primary); background: #fff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
 
-        /* 3D Sliders */
-        input[type="range"] {
-            width: 100%; -webkit-appearance: none; background: transparent; margin: 10px 0;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
-            background: var(--primary); border: 3px solid #fff; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; margin-top: -8px;
-        }
-        input[type="range"]::-webkit-slider-runnable-track {
-            width: 100%; height: 6px; background: #E2E8F0; border-radius: 10px;
-        }
-
-        /* Drag & Drop Zone */
+        /* Drag & Drop */
         .drop-zone {
-            border: 2px dashed #CBD5E1;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #F8FAFC;
-            position: relative;
+            border: 2px dashed #cbd5e1; border-radius: 16px; padding: 25px;
+            text-align: center; cursor: pointer; background: #f8fafc; position: relative; transition: 0.3s;
         }
-        .drop-zone:hover, .drop-zone.dragover {
-            border-color: var(--primary);
-            background: #EEF2FF;
-            transform: scale(0.99);
-        }
-        .drop-zone i { font-size: 2.5rem; color: #94A3B8; margin-bottom: 10px; transition: 0.3s; }
-        .drop-zone p { margin: 0; color: var(--text-gray); font-weight: 600; }
-        .drop-zone.has-file { border-color: #10B981; background: #ECFDF5; }
-        .drop-zone.has-file i { color: #10B981; }
+        .drop-zone:hover { border-color: var(--primary); background: #eef2ff; }
+        .drop-zone.has-file { border-color: #10b981; background: #ecfdf5; }
+        .drop-zone i { font-size: 2rem; color: #94a3b8; margin-bottom: 10px; }
         .drop-zone input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
-        /* Grid for settings */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        /* Sliders */
+        input[type="range"] { width: 100%; -webkit-appearance: none; background: transparent; margin: 10px 0; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%;
+            background: var(--primary); border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; margin-top: -7px;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; background: #e2e8f0; border-radius: 10px;
+        }
 
-        /* Color Pickers Modern */
-        .color-item {
+        /* Grid System */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        /* Colors */
+        .color-group {
             display: flex; align-items: center; justify-content: space-between;
-            background: #F8FAFC; padding: 10px 15px; border-radius: 14px; border: 1px solid #E2E8F0;
+            background: #f8fafc; padding: 8px 12px; border-radius: 12px; border: 1px solid #e2e8f0;
         }
         input[type="color"] {
-            -webkit-appearance: none; border: none; width: 32px; height: 32px;
-            border-radius: 10px; cursor: pointer; padding: 0; background: none;
-        }
-        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); }
-
-        /* --- RIGHT PANEL: PREVIEW --- */
-        .preview-panel {
-            position: sticky;
-            top: 20px;
+            -webkit-appearance: none; border: none; width: 30px; height: 30px; background: none; cursor: pointer;
         }
 
+        /* --- RIGHT PANEL --- */
+        .preview-panel { position: sticky; top: 20px; }
         .preview-card {
-            background: var(--card-bg);
-            border-radius: 30px;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
-            border: 1px solid #fff;
-            text-align: center;
+            background: var(--card-bg); border-radius: 30px; padding: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); border: 1px solid #fff;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
         }
 
         #canvas {
-            background: #fff;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.03);
-            margin-bottom: 30px;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: white; padding: 15px; border-radius: 20px;
+            box-shadow: inset 0 0 0 1px #e2e8f0; margin-bottom: 25px;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        #canvas:hover { transform: scale(1.03) rotate(1deg); }
+        #canvas:hover { transform: scale(1.05) rotate(2deg); }
 
         /* 3D Buttons */
-        .btn-group { display: grid; gap: 12px; width: 100%; }
+        .btn-dl {
+            width: 100%; padding: 14px; border: none; border-radius: 14px;
+            font-weight: 700; color: white; cursor: pointer; position: relative; top: 0;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.1s; margin-bottom: 10px;
+        }
         
-        .btn-3d {
-            border: none;
-            padding: 16px;
-            border-radius: 16px;
-            font-size: 1rem;
-            font-weight: 700;
-            color: white;
-            cursor: pointer;
-            transition: all 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            top: 0;
-        }
+        .btn-png { background: #3b82f6; box-shadow: 0 5px 0 #2563eb; }
+        .btn-jpg { background: #ec4899; box-shadow: 0 5px 0 #db2777; }
+        .btn-svg { background: #10b981; box-shadow: 0 5px 0 #059669; }
 
-        .btn-png { 
-            background: #3B82F6; 
-            box-shadow: 0 6px 0 #2563EB, 0 10px 10px rgba(59, 130, 246, 0.3); 
-        }
-        .btn-jpg { 
-            background: #EC4899; 
-            box-shadow: 0 6px 0 #DB2777, 0 10px 10px rgba(236, 72, 153, 0.3); 
-        }
-        .btn-svg { 
-            background: #10B981; 
-            box-shadow: 0 6px 0 #059669, 0 10px 10px rgba(16, 185, 129, 0.3); 
-        }
-
-        .btn-3d:active {
-            top: 6px;
-            box-shadow: 0 0 0 transparent, inset 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        /* Responsive */
+        .btn-dl:active { top: 5px; box-shadow: none; }
+        
         @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; }
-            .preview-panel { order: -1; position: relative; top: 0; }
-            .preview-card { padding: 30px 20px; }
+            .preview-panel { position: relative; order: -1; }
         }
     </style>
 </head>
@@ -232,94 +143,102 @@
 
     <div class="container">
         <div class="config-panel">
-            
             <div class="header-box">
-                <h1>GenQR Pro</h1>
-                <p>Generator QR Code Modern dengan gaya 3D.</p>
+                <h1>GenQR Master 3D</h1>
+                <p>Kombinasi Bentuk Tak Terbatas & Unik</p>
             </div>
 
             <div class="card">
-                <div class="card-title"><i class="fas fa-link"></i> Konten Utama</div>
-                <div class="input-group">
-                    <label>URL / Teks</label>
-                    <input type="text" id="content" value="https://pictlord.me" placeholder="Masukkan link website...">
+                <div class="card-header"><i class="fas fa-magic"></i> <span>Konten & Logo</span></div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label>URL Tujuan</label>
+                    <input type="text" id="content" value="https://pictlord.me" placeholder="https://...">
                 </div>
-            </div>
 
-            <div class="card">
-                <div class="card-title"><i class="fas fa-image"></i> Personalisasi Logo</div>
                 <div class="drop-zone" id="dropZone">
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <p id="dropText">Drag & Drop Logo di sini</p>
-                    <span style="font-size: 0.8rem; color: #94a3b8;">atau klik untuk memilih file</span>
+                    <p id="dropText" style="margin:0; font-weight:700; color:#475569;">Drag & Drop Logo</p>
+                    <span style="font-size:0.8rem; color:#94a3b8;">PNG Transparan Recommended</span>
                     <input type="file" id="logoInput" accept="image/*">
                 </div>
-                
-                <div class="grid-2" style="margin-top: 20px;">
-                    <div>
-                        <label>Ukuran</label>
-                        <input type="range" id="logoSize" min="0.2" max="0.6" step="0.05" value="0.4">
-                    </div>
-                    <div>
-                        <label>Jarak (Margin)</label>
-                        <input type="range" id="logoMargin" min="0" max="20" step="1" value="5">
-                    </div>
+
+                <div class="grid-2" style="margin-top:15px;">
+                    <div><label>Size</label><input type="range" id="logoSize" min="0.2" max="0.6" step="0.05" value="0.4"></div>
+                    <div><label>Margin</label><input type="range" id="logoMargin" min="0" max="20" step="1" value="5"></div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title"><i class="fas fa-paint-brush"></i> Tampilan & Warna</div>
+                <div class="card-header"><i class="fas fa-shapes"></i> <span>Kustomisasi Bentuk</span></div>
                 
+                <div style="margin-bottom: 15px;">
+                    <label>Pola Utama (Body Pattern)</label>
+                    <select id="dotStyle">
+                        <option value="square">◼️ Mosaic (Square)</option>
+                        <option value="dots">● Stardust (Dots)</option>
+                        <option value="rounded">▮ Rain (Rounded)</option>
+                        <option value="extra-rounded">⬤ Bubble (Bulat)</option>
+                        <option value="classy">◆ Classy (Elegan)</option>
+                        <option value="classy-rounded">✿ Leaf (Daun)</option>
+                    </select>
+                </div>
+
                 <div class="grid-2">
-                    <div class="input-group">
-                        <label>Pola (Dots)</label>
-                        <select id="dotStyle">
-                            <option value="square">Kotak</option>
-                            <option value="dots">Titik</option>
-                            <option value="rounded">Rounded</option>
-                            <option value="classy">Classy</option>
-                            <option value="classy-rounded">Soft Classy</option>
-                            <option value="extra-rounded">Bulat Penuh</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Sudut (Mata)</label>
-                        <select id="cornerStyle">
-                            <option value="square">Kotak Tajam</option>
+                    <div>
+                        <label>Bingkai Mata (Outer)</label>
+                        <select id="cornerSquareStyle">
                             <option value="extra-rounded">Rounded</option>
+                            <option value="square">Kotak Tajam</option>
                             <option value="dot">Lingkaran</option>
                         </select>
                     </div>
+                    <div>
+                        <label>Bola Mata (Inner)</label>
+                        <select id="cornerDotStyle">
+                            <option value="dot">Lingkaran</option>
+                            <option value="square">Kotak</option>
+                        </select>
+                    </div>
                 </div>
+            </div>
 
-                <div class="grid-2">
-                    <div class="color-item">
-                        <span>Warna QR</span>
-                        <input type="color" id="colorDots" value="#1E293B">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-palette"></i> <span>Warna Premium</span></div>
+                
+                <div class="grid-3">
+                    <div>
+                        <label>Pola</label>
+                        <div class="color-group">
+                            <input type="color" id="colorDots" value="#1e293b">
+                        </div>
                     </div>
-                    <div class="color-item">
-                        <span>Background</span>
-                        <input type="color" id="colorBg" value="#ffffff">
+                    <div>
+                        <label>Mata</label>
+                        <div class="color-group">
+                            <input type="color" id="colorCorners" value="#4f46e5">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Latar</label>
+                        <div class="color-group">
+                            <input type="color" id="colorBg" value="#ffffff">
+                        </div>
                     </div>
                 </div>
+                <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 10px;">*Tips: Gunakan warna 'Mata' yang kontras dengan 'Pola' agar unik.</p>
             </div>
         </div>
 
         <div class="preview-panel">
             <div class="preview-card">
-                <h3 style="margin-top:0; margin-bottom: 20px; color: var(--text-gray);">Live Preview</h3>
+                <h3 style="margin-top:0; color:#64748b;">Hasil Live</h3>
                 <div id="canvas"></div>
                 
-                <div class="btn-group">
-                    <button class="btn-3d btn-png" onclick="downloadQR('png')">
-                        <i class="fas fa-download"></i> Unduh PNG
-                    </button>
-                    <button class="btn-3d btn-jpg" onclick="downloadQR('jpeg')">
-                        <i class="fas fa-image"></i> Unduh JPG
-                    </button>
-                    <button class="btn-3d btn-svg" onclick="downloadQR('svg')">
-                        <i class="fas fa-vector-square"></i> Unduh SVG (Vektor)
-                    </button>
+                <div style="width:100%;">
+                    <button class="btn-dl btn-png" onclick="downloadQR('png')"><i class="fas fa-download"></i> Unduh PNG</button>
+                    <button class="btn-dl btn-jpg" onclick="downloadQR('jpeg')"><i class="fas fa-image"></i> Unduh JPG</button>
+                    <button class="btn-dl btn-svg" onclick="downloadQR('svg')"><i class="fas fa-bezier-curve"></i> Unduh SVG</button>
                 </div>
             </div>
         </div>
@@ -328,106 +247,88 @@
     <script>
         let uploadedLogo = "";
         
-        // Inisialisasi QR Code Styling
         const qrCode = new QRCodeStyling({
-            width: 300,
-            height: 300,
-            type: "svg",
+            width: 300, height: 300, type: "svg",
             data: "https://pictlord.me",
             image: "",
             qrOptions: { errorCorrectionLevel: 'H' },
-            dotsOptions: { color: "#1E293B", type: "rounded" },
+            dotsOptions: { color: "#1e293b", type: "classy-rounded" }, // Default cantik
             backgroundOptions: { color: "#ffffff" },
-            cornersSquareOptions: { type: "extra-rounded" },
+            cornersSquareOptions: { type: "extra-rounded", color: "#4f46e5" }, // Warna mata beda
+            cornersDotOptions: { type: "dot", color: "#4f46e5" }, // Warna bola mata
             imageOptions: { crossOrigin: "anonymous", margin: 5, imageSize: 0.4 }
         });
 
         qrCode.append(document.getElementById("canvas"));
 
-        // Main Update Function
         function updateQR() {
-            const options = {
+            const dotColor = document.getElementById("colorDots").value;
+            const cornerColor = document.getElementById("colorCorners").value; // Warna khusus mata
+
+            qrCode.update({
                 data: document.getElementById("content").value,
                 image: uploadedLogo,
                 dotsOptions: {
-                    color: document.getElementById("colorDots").value,
+                    color: dotColor,
                     type: document.getElementById("dotStyle").value
                 },
                 backgroundOptions: {
                     color: document.getElementById("colorBg").value
                 },
                 cornersSquareOptions: {
-                    type: document.getElementById("cornerStyle").value
+                    type: document.getElementById("cornerSquareStyle").value,
+                    color: cornerColor // Set warna bingkai
+                },
+                cornersDotOptions: {
+                    type: document.getElementById("cornerDotStyle").value,
+                    color: cornerColor // Set warna bola mata sama dengan bingkai
                 },
                 imageOptions: {
                     imageSize: parseFloat(document.getElementById("logoSize").value),
                     margin: parseInt(document.getElementById("logoMargin").value)
                 }
-            };
-            qrCode.update(options);
+            });
         }
 
-        // --- Logic Drag & Drop ---
+        // --- Drag & Drop Handling ---
         const dropZone = document.getElementById('dropZone');
         const logoInput = document.getElementById('logoInput');
         const dropText = document.getElementById('dropText');
 
-        // Prevent default behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
+            dropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
         });
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+        ['dragenter', 'dragover'].forEach(name => dropZone.addEventListener(name, () => dropZone.classList.add('has-file'), false));
+        ['dragleave'].forEach(name => dropZone.addEventListener(name, () => dropZone.classList.remove('has-file'), false));
 
-        // Highlight drop zone
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        dropZone.addEventListener('drop', e => {
+            handleFiles(e.dataTransfer.files);
         });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
-        });
-
-        // Handle Drop
-        dropZone.addEventListener('drop', handleDrop, false);
-        logoInput.addEventListener('change', (e) => handleFiles(e.target.files), false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
+        
+        logoInput.addEventListener('change', e => handleFiles(e.target.files));
 
         function handleFiles(files) {
-            if (files.length > 0) {
-                const file = files[0];
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        uploadedLogo = e.target.result;
-                        updateQR();
-                        // UI Feedback
-                        dropZone.classList.add('has-file');
-                        dropText.innerText = "Logo: " + file.name;
-                        dropZone.querySelector('i').className = "fas fa-check-circle";
-                    }
-                    reader.readAsDataURL(file);
-                } else {
-                    alert("Mohon upload file gambar saja (PNG/JPG).");
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    uploadedLogo = e.target.result;
+                    updateQR();
+                    dropText.innerText = "Logo: " + files[0].name.substring(0, 15) + "...";
+                    dropZone.querySelector('i').className = "fas fa-check-circle";
+                    dropZone.querySelector('i').style.color = "#10b981";
+                    dropZone.classList.add('has-file');
                 }
+                reader.readAsDataURL(files[0]);
             }
         }
 
-        // Download Functions
         function downloadQR(format) {
-            qrCode.download({ name: "qr-code-3d", extension: format });
+            qrCode.download({ name: "Get-Qr", extension: format });
         }
 
-        // Attach Listeners to Inputs
-        const inputs = ["content", "dotStyle", "cornerStyle", "colorDots", "colorBg", "logoSize", "logoMargin"];
+        // Listeners
+        const inputs = ["content", "dotStyle", "cornerSquareStyle", "cornerDotStyle", "colorDots", "colorCorners", "colorBg", "logoSize", "logoMargin"];
         inputs.forEach(id => {
             const el = document.getElementById(id);
             if(el) el.addEventListener(el.type === "text" ? "keyup" : "input", updateQR);
